@@ -29,5 +29,13 @@
 
        (fact "it lands and moves as per the spec LMLMLMLMM"
              (let [payload (str "5 5" "\n" "1 2 N" "\n" "LMLMLMLMM" "\n" "3 3 E" "\n" "MMRMMRMRRM")]
-               (mars-landing payload) => '([1 3 N] [5 1 E]))))
+               (mars-landing payload) => '([1 3 N] [5 1 E])))
+
+       (fact "falling off the plateau leaves RIP"
+             (let [payload (str "5 5" "\n" "5 5 N" "\n" "M")]
+               (mars-landing payload) => '([5 5 N RIP])))
+
+       (fact "falling off the plateau terminates the rover"
+             (let [payload (str "5 5" "\n" "5 5 N" "\n" "MMMMMM")]
+               (mars-landing payload) => '([5 5 N RIP]))))
 

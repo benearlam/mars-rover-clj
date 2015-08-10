@@ -21,20 +21,32 @@
   (partial next-direction inc 'N))
 
 (defn- move-forward
-  [x y dir]
+  [[x y dir]]
   (let [[+x +y] (movement-matrix dir)]
     [(+ x +x) (+ y +y) dir]))
 
+(defn- check-position
+  [current-position last-known-position plateau]
+  (if (some true? (map > current-position plateau))
+    (conj (vec last-known-position) 'RIP)
+    current-position))
+
 (defn- process-command
-  [[x y dir] command]
+  [plateau [x y dir :as start] command]
   (cond
-    (= command \M) (move-forward x y dir)
+    (= command \M) (-> start
+                       move-forward
+                       (check-position start plateau))
     (= command \L) [x y (turn-left dir)]
     (= command \R) [x y (turn-right dir)]))
 
 (defn- process-rover
   [{:keys [start commands]} plateau]
-  (reduce process-command start commands))
+  (reduce (fn [pos command]
+            (let [new-pos (process-command plateau pos command)]
+              (if (some #{'RIP} new-pos)
+                (reduced new-pos)
+                new-pos))) start commands))
 
 (defn mars-landing
   [payload]
